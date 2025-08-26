@@ -10,6 +10,7 @@ const Login = () => {
     const navigate =useNavigate()
     const [error,setError] =useState({})
     const [submit,setSubmit] =useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
   
     const [data,setData] =useState({
         email:"",
@@ -20,8 +21,6 @@ const Login = () => {
         const newObj={...data,[e.target.name]:e.target.value}
         setData(newObj)
     }
- 
-
 
     const handleSignUp = async (e) => {
         e.preventDefault();
@@ -35,19 +34,19 @@ const Login = () => {
                     password: data.password
                 });
                 localStorage.setItem('token', res.data.accessToken);
-                navigate('/home');
+                setIsLoggedIn(true);
             } catch (err) {
-                setError({ api: err.response?.data?.message || 'Login failed' });
+                setError({ api: err.response?.data?.message || 'Invalid email or password' });
+                setIsLoggedIn(false);
             }
         }
     }
 
-    useEffect(()=>{
-        if(Object.keys(error).length === 0 && submit){
-            navigate("/home")
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate('/home');
         }
-    },[error])
-
+    }, [isLoggedIn]);
 
 
    function validationLogin(data){
