@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import {FiMail} from "react-icons/fi"
 import {RiLockPasswordLine} from "react-icons/ri"
 import "../RegisterPage/RegisterPage.css"
@@ -21,10 +22,24 @@ const Login = () => {
     }
  
 
-    const handleSignUp=(e)=>{
-        e.preventDefault()
-       setError(validationLogin(data))
-       setSubmit(true)
+
+    const handleSignUp = async (e) => {
+        e.preventDefault();
+        setError(validationLogin(data));
+        setSubmit(true);
+
+        if (Object.keys(validationLogin(data)).length === 0) {
+            try {
+                const res = await axios.post('http://localhost:3000/user/login', {
+                    email: data.email,
+                    password: data.password
+                });
+                localStorage.setItem('token', res.data.accessToken);
+                navigate('/home');
+            } catch (err) {
+                setError({ api: err.response?.data?.message || 'Login failed' });
+            }
+        }
     }
 
     useEffect(()=>{
@@ -86,6 +101,7 @@ const Login = () => {
                             placeholder='Password'/>
                 </div>
                 {error.password && <span style={{color:"red",display:"block",marginTop:"5px"}}>{error.password}</span>}
+                {error.api && <span style={{color:"red",display:"block",marginTop:"5px"}}>{error.api}</span>}
                
 
                 <div className='divBtn'>
