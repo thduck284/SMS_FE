@@ -1,0 +1,140 @@
+.fp-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  background: #f7f9fc;
+}
+
+.fp-form {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  width: 350px;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.fp-form h2 {
+  margin-bottom: 15px;
+  font-size: 22px;
+  color: #333;
+}
+
+.fp-form p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.fp-inputBox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.fp-inputBox input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 6px;
+  font-size: 14px;
+}
+
+.fp-icon {
+  margin-right: 8px;
+  color: #888;
+}
+
+.fp-btn {
+  width: 100%;
+  padding: 10px;
+  background: #4a90e2;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.fp-btn:hover {
+  background: #357abd;
+}
+
+.fp-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.fp-popup {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #ddd;
+  padding: 20px;
+  width: 300px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.fp-popup p {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.fp-popup button {
+  padding: 6px 14px;
+  border: none;
+  background: #4a90e2;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fp-popup button:hover {
+  background: #357abd;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fp-inputBox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.fp-inputBox input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 6px;
+  font-size: 14px;
+}
+
+.fp-eye {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
