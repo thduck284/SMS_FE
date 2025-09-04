@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import {FiMail} from "react-icons/fi"
 import {RiLockPasswordLine} from "react-icons/ri"
@@ -6,8 +6,11 @@ import "../RegisterPage/RegisterPage.css"
 import { Link, useNavigate } from 'react-router-dom'
 
 
+import { AuthContext } from '../../context/AuthContext'
+
 const Login = () => {
     const navigate =useNavigate()
+    const { saveSession, fetchProfile, isAuthenticated } = useContext(AuthContext)
     const [error,setError] =useState({})
     const [submit,setSubmit] =useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -33,20 +36,21 @@ const Login = () => {
                     email: data.email,
                     password: data.password
                 });
-                localStorage.setItem('token', res.data.accessToken);
-                setIsLoggedIn(true);
+                saveSession(res.data.accessToken)
+                await fetchProfile()
+                setIsLoggedIn(true)
             } catch (err) {
                 setError({ api: err.response?.data?.message || 'Invalid email or password' });
-                setIsLoggedIn(false);
+                setIsLoggedIn(false)
             }
         }
     }
 
     useEffect(() => {
-        if (isLoggedIn) {
+        if (isLoggedIn || isAuthenticated) {
             navigate('/home');
         }
-    }, [isLoggedIn]);
+    }, [isLoggedIn, isAuthenticated]);
 
 
    function validationLogin(data){
