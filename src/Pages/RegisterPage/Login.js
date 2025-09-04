@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import {FiMail} from "react-icons/fi"
 import {RiLockPasswordLine} from "react-icons/ri"
 import "../RegisterPage/RegisterPage.css"
@@ -9,6 +10,7 @@ const Login = () => {
     const navigate =useNavigate()
     const [error,setError] =useState({})
     const [submit,setSubmit] =useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
   
     const [data,setData] =useState({
         email:"",
@@ -19,20 +21,32 @@ const Login = () => {
         const newObj={...data,[e.target.name]:e.target.value}
         setData(newObj)
     }
- 
 
-    const handleSignUp=(e)=>{
-        e.preventDefault()
-       setError(validationLogin(data))
-       setSubmit(true)
+    const handleSignUp = async (e) => {
+        e.preventDefault();
+        setError(validationLogin(data));
+        setSubmit(true);
+
+        if (Object.keys(validationLogin(data)).length === 0) {
+            try {
+                const res = await axios.post('http://localhost:3000/user/login', {
+                    email: data.email,
+                    password: data.password
+                });
+                localStorage.setItem('token', res.data.accessToken);
+                setIsLoggedIn(true);
+            } catch (err) {
+                setError({ api: err.response?.data?.message || 'Invalid email or password' });
+                setIsLoggedIn(false);
+            }
+        }
     }
 
-    useEffect(()=>{
-        if(Object.keys(error).length === 0 && submit){
-            navigate("/home")
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate('/home');
         }
-    },[error])
-
+    }, [isLoggedIn]);
 
 
    function validationLogin(data){
@@ -86,10 +100,13 @@ const Login = () => {
                             placeholder='Password'/>
                 </div>
                 {error.password && <span style={{color:"red",display:"block",marginTop:"5px"}}>{error.password}</span>}
+                {error.api && <span style={{color:"red",display:"block",marginTop:"5px"}}>{error.api}</span>}
                
 
                 <div className='divBtn'>
-                    <small className='FG'>Forgot Password?</small>
+                    <Link to="/forget-password" className='FG'>
+                        Forgot Password?
+                    </Link>
                     <button type='submit' className='loginBtn'>LOGIN</button>
                 </div>
                 
