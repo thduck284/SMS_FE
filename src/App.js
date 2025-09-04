@@ -6,6 +6,7 @@ import { Route, Routes } from 'react-router-dom'
 import Notification from './Pages/Notification/Notification'
 import Login from './Pages/RegisterPage/Login'
 import SignUp from './Pages/RegisterPage/SignUp'
+import ProductDetail from './Pages/ProductDetail/ProductDetail'
 
 const App = () => {
   const [friendProfile,setFriendsProfile] =useState([])
@@ -24,6 +25,8 @@ const App = () => {
         <Route path='/' element={<Login />} />
 
         <Route path='/signup' element={<SignUp />} />
+        
+        <Route path='/products/:slug' element={<ProductDetail />} />
         
       </Routes>
     </div>
