@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
     profile,
     isAuthenticated: Boolean(accessToken),
     isLoadingProfile,
+    setProfile,
     saveSession,
     clearSession,
     fetchProfile,

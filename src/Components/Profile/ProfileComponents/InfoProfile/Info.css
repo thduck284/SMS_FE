@@ -121,6 +121,7 @@
     color: #fff;
     padding: 5px 10px;
     border-radius: 10px;
+    width: 120px;
 }
 .logout svg{
     font-size: 21px;

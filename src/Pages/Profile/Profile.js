@@ -1,72 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import Left from '../../Components/LeftSide/Left'
 import ProfileMiddle from '../../Components/Profile/ProfileMiddle'
 import Right from '../../Components/RightSide/Right'
 import Nav from '../../Components/Navigation/Nav'
 import "../Profile/Profile.css"
-import ProfileImg from "../../assets/profile.jpg"
+import DefaultImage from "../../assets/profile.jpg"
+import { AuthContext } from '../../context/AuthContext'
 
 const Profile = () => {
+  const { profile } = useContext(AuthContext)
 
-  const [following,setFollowing] =useState(3)
-  const [search,setSearch] =useState("")
+  const [following, setFollowing] = useState(3)
+  const [search, setSearch] = useState("")
+  const [showMenu, setShowMenu] = useState(false)
+  const [images, setImages] = useState(null)
 
-  const [showMenu,setShowMenu] =useState(false)
+  const [name, setName] = useState("")
+  const [userName, setUserName] = useState("")
+  const [profileImg, setProfileImg] = useState(DefaultImage)
+  const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
+  const [modelDetails, setModelDetails] = useState({})
 
-  const [images,setImages] =  useState(null)
-
-  const [name,setName]= useState("")
-  const [userName,setUserName]= useState("")
-  const [profileImg,setProfileImg] =useState(ProfileImg)
-
-  const [modelDetails,setModelDetails] = useState(
-    {
-      ModelName:"Vijay",
-      ModelUserName:"@Vijay98",
-      ModelCountryName:"India",
-      ModelJobName:"Web Developer in Google"
+  useEffect(() => {
+    if (profile) {
+      const username = profile.username || ""
+      setName(username)
+      setUserName(`@${username}`)
+      setProfileImg(profile.avatar || DefaultImage)
+      setEmail(profile.email || "")
+      setPhone(profile.phone || "")
+      setModelDetails({
+        ModelName: username,
+        ModelUserName: `@${username}`,
+        ModelCountryName: "Vietnam",
+        ModelJobName: "Member",
+      })
     }
-  )
+  }, [profile])
 
   return (
     <div className='interface'>
-        <Nav
-        search={search}
-        setSearch={setSearch}
-        showMenu={showMenu}
-        setShowMenu={setShowMenu}
-        profileImg={profileImg}
-        />
+      <Nav {...{search, setSearch, showMenu, setShowMenu, profileImg}} />
       <div className="home">
-        <Left 
-        following={following}
-        setFollowing={setFollowing}
-        profileImg={profileImg}
-        modelDetails={modelDetails}
-        
+        <Left {...{following, setFollowing, profileImg, modelDetails}} />
+        <ProfileMiddle
+          {...{following, search, images, setImages, name, setName,
+              userName, setUserName, profileImg, setProfileImg,
+              email, phone, modelDetails, setModelDetails}}
         />
-
-        <ProfileMiddle 
-        following={following}
-        search={search}
-        images={images}
-        setImages={setImages}
-        name={name}
-        setName={setName}
-        userName={userName}
-        setUserName={setUserName}
-        profileImg={profileImg}
-        setProfileImg={setProfileImg}
-        modelDetails={modelDetails}
-        setModelDetails={setModelDetails}
-        />
-        
-        <Right 
-        showMenu={showMenu}
-        setShowMenu={setShowMenu}
-        following={following}
-        setFollowing={setFollowing}
-        />
+        <Right {...{showMenu, setShowMenu, following, setFollowing}} />
       </div>
     </div>
   )
