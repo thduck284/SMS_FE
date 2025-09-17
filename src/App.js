@@ -8,6 +8,7 @@ import Login from './Pages/RegisterPage/Login'
 import SignUp from './Pages/RegisterPage/SignUp'
 import ProductDetail from './Pages/ProductDetail/ProductDetail'
 import Products from './Pages/Products/Products'
+import Carts from './Pages/Cart/Carts'
 import ForgetPassword from './Pages/RegisterPage/ForgetPassword'
 import { AuthProvider, AuthContext } from './context/AuthContext'
 
@@ -34,6 +35,7 @@ const App = () => {
           <Route path='/notification' element={<ProtectedRoute><Notification /></ProtectedRoute>} />
           <Route path='/products' element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path='/products/:slug' element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+          <Route path='/carts' element={<ProtectedRoute><Carts /></ProtectedRoute>} />
         </Routes>
       </div>
     </AuthProvider>
