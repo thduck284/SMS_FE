@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import './ProductDetail.css'
 
-const API_BASE_URL = 'http://127.0.0.1:3001/products'
+const API_BASE_URL = 'http://127.0.0.1:3000/products'
 
 const formatCurrency = (value) => {
   try {
