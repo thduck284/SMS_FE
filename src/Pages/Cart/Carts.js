@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { AuthContext } from '../../context/AuthContext'
 import './Carts.css'
@@ -61,7 +61,7 @@ const useCart = (accessToken) => {
     const item = cart.find(item => item.id === productId)
     if (item) {
       const finalQuantity = Math.min(newQuantity, item.stock || 99)
-      await syncWithServer('put', '/update', { productId, quantity: finalQuantity })
+  await syncWithServer('put', '/cart/update', { productId, quantity: finalQuantity })
       
       saveCart(cart.map(item =>
         item.id === productId ? { ...item, quantity: finalQuantity } : item
@@ -204,6 +204,15 @@ const Cart = () => {
   const { cart, updateQuantity, removeFromCart, clearCart, syncCartWithServer, getCartTotal, getCartCount } = useCart(accessToken)
   const [notification, setNotification] = useState(null)
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const [address, setAddress] = useState({
+    fullName: '',
+    phone: '',
+    street: '',
+    ward: '',
+    district: '',
+    province: ''
+  })
 
   console.log('Cart state:', cart)
   console.log('IsAuthenticated:', isAuthenticated)
@@ -257,39 +266,38 @@ const Cart = () => {
       return
     }
 
+    // validate address
+    for (const k of ['fullName','phone','street']) {
+      if (!address[k]) { showNotification('Vui lòng nhập đầy đủ địa chỉ giao hàng', 'error'); return }
+    }
+
     setLoading(true)
-    
+
     try {
-      const cartTotal = getCartTotal()
-      const shipping = cartTotal > 500000 ? 0 : 30000
-      
+      const shippingAddress = {
+        fullName: address.fullName,
+        phone: address.phone,
+        street: address.street,
+      };
       const response = await axios.post(
-        `${API_BASE_URL}/cart`,
+        `${API_BASE_URL}/orders/checkout`,
         {
-          items: cart.map(item => ({
-            productId: item.id,
-            quantity: item.quantity,
-            price: item.price
-          })),
-          total: cartTotal + shipping
+          items: cart.map(item => ({ productId: item.id, quantity: item.quantity })),
+          shippingAddress,
+          paymentMethod: 'COD'
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-          }
-        }
+        { headers: { 'Authorization': `Bearer ${accessToken}` } }
       )
 
-      if (response.data.success) {
-        showNotification('Đơn hàng đã được tạo thành công!')
-        clearCart()
-      }
+      const order = response.data
+      clearCart()
+      navigate(`/order-success/${order._id}`, { state: { order } })
     } catch (error) {
       console.error('Checkout error:', error)
+      const backendMsg = error.response?.data?.message
       const message = error.response?.status === 401 
-        ? 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại' 
-        : 'Có lỗi xảy ra khi xử lý đơn hàng'
+        ? 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại'
+        : (typeof backendMsg === 'string' ? backendMsg : Array.isArray(backendMsg) ? backendMsg.join(', ') : 'Có lỗi xảy ra khi xử lý đơn hàng')
       showNotification(message, 'error')
     } finally {
       setLoading(false)
@@ -347,6 +355,12 @@ const Cart = () => {
         <div className="cart-sidebar">
           <div className="order-summary">
             <h3>Tóm tắt đơn hàng</h3>
+            <div className="shipping-address">
+              <h4>Địa chỉ giao hàng</h4>
+              <input placeholder="Họ và tên" value={address.fullName} onChange={e=>setAddress({...address, fullName:e.target.value})} />
+              <input placeholder="Số điện thoại" value={address.phone} onChange={e=>setAddress({...address, phone:e.target.value})} />
+              <input placeholder="Địa chỉ" value={address.street} onChange={e=>setAddress({...address, street:e.target.value})} />
+            </div>
             <div className="summary-row">
               <span>Tạm tính ({cartCount} sản phẩm)</span>
               <span>{formatCurrency(cartTotal)}</span>
@@ -367,9 +381,9 @@ const Cart = () => {
               onClick={handleCheckout}
               disabled={loading || cart.some(item => !item.inStock) || !isAuthenticated}
             >
-              {loading ? 'Đang xử lý...' : 
+          {loading ? 'Đang xử lý...' : 
                !isAuthenticated ? 'Đăng nhập để thanh toán' : 
-               'Tiến hành thanh toán'}
+          'Thanh toán COD'}
             </button>
 
             <div className="cart-actions">

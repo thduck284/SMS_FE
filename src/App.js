@@ -9,7 +9,9 @@ import SignUp from './Pages/RegisterPage/SignUp'
 import ProductDetail from './Pages/ProductDetail/ProductDetail'
 import Products from './Pages/Products/Products'
 import Carts from './Pages/Cart/Carts'
+import OrderSuccess from './Pages/OrderSuccess/OrderSuccess'
 import ForgetPassword from './Pages/RegisterPage/ForgetPassword'
+import OrderHistory from './Pages/OrderHistory/OrderHistory'
 import { AuthProvider, AuthContext } from './context/AuthContext'
 
 const ProtectedRoute = ({ children }) => {
@@ -36,6 +38,8 @@ const App = () => {
           <Route path='/products' element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path='/products/:slug' element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
           <Route path='/carts' element={<ProtectedRoute><Carts /></ProtectedRoute>} />
+          <Route path='/order-success/:orderId' element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
+          <Route path='/orders' element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
         </Routes>
       </div>
     </AuthProvider>

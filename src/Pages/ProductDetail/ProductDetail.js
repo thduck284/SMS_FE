@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useEffect, useMemo, useState, useContext } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { AuthContext } from '../../context/AuthContext'
+import axios from 'axios'
 import './ProductDetail.css'
 
-const API_BASE_URL = 'http://127.0.0.1:3000/products'
+const API_BASE_URL = 'http://127.0.0.1:3000'
 
 const formatCurrency = (value) => {
   try {
@@ -14,6 +16,8 @@ const formatCurrency = (value) => {
 
 const ProductDetail = () => {
   const { slug } = useParams()
+  const navigate = useNavigate()
+  const { isAuthenticated, accessToken } = useContext(AuthContext)
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -26,10 +30,10 @@ const ProductDetail = () => {
       setLoading(true)
       setError('')
       try {
-        const res = await fetch(`${API_BASE_URL}/${slug}`)
+        const res = await fetch(`${API_BASE_URL}/products/${slug}`)
         if (!res.ok) throw new Error('Không lấy được dữ liệu sản phẩm')
         const data = await res.json()
-        if (isMounted) setProduct(data)
+        if (isMounted) setProduct({ ...data, id: data._id || data.id })
       } catch (err) {
         if (isMounted) setError(err.message || 'Có lỗi xảy ra')
       } finally {
@@ -51,6 +55,52 @@ const ProductDetail = () => {
   const handleIncrease = () => {
     const max = product?.stock ?? 1
     setQuantity((q) => (q < max ? q + 1 : max))
+  }
+
+  const addToCart = async () => {
+    if (!product) return
+    if (!isAuthenticated) {
+      // Still allow local add to cart
+      const local = JSON.parse(localStorage.getItem('cart') || '[]')
+      const existing = local.find(i => i.id === product.id)
+      const qty = Math.min(quantity, product.stock || 1)
+      if (existing) {
+        existing.quantity = Math.min((existing.quantity || 0) + qty, product.stock || 1)
+      } else {
+        local.push({
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          image: product.images?.[0] || '',
+          price: product.price,
+          quantity: qty,
+          stock: product.stock,
+          inStock: product.inStock,
+        })
+      }
+      localStorage.setItem('cart', JSON.stringify(local))
+      navigate('/carts')
+      return
+    }
+
+    try {
+      await axios.post(`${API_BASE_URL}/cart/add`, {
+        productId: product.id,
+        quantity
+      }, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+      // sync local cart minimally
+      const local = JSON.parse(localStorage.getItem('cart') || '[]')
+      const existing = local.find(i => i.id === product.id)
+      if (existing) existing.quantity += quantity
+      else local.push({ id: product.id, name: product.name, slug: product.slug, image: product.images?.[0] || '', price: product.price, quantity, stock: product.stock, inStock: product.inStock })
+      localStorage.setItem('cart', JSON.stringify(local))
+      navigate('/carts')
+    } catch (e) {
+      console.error('Add to cart error:', e)
+      alert('Không thể thêm vào giỏ hàng')
+    }
   }
 
   if (loading) return <div className='pd-container'><div className='pd-skeleton'>Đang tải...</div></div>
@@ -118,7 +168,7 @@ const ProductDetail = () => {
               <button onClick={handleIncrease} aria-label='Tăng'>+</button>
             </div>
 
-            <button className='pd-add' disabled={!product.inStock}>Thêm vào giỏ</button>
+            <button className='pd-add' onClick={addToCart} disabled={!product.inStock}>Thêm vào giỏ</button>
           </div>
         </div>
       </div>

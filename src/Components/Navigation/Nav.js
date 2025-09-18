@@ -7,6 +7,7 @@ import {AiOutlineHome} from "react-icons/ai"
 import {LiaUserFriendsSolid} from "react-icons/lia"
 import {IoNotificationsOutline} from "react-icons/io5"
 import {TbMessage} from "react-icons/tb"
+import { AiOutlineShoppingCart } from 'react-icons/ai'
 
 import Profile from "../../assets/profile.jpg"
 import { AuthContext } from '../../context/AuthContext'
@@ -21,6 +22,9 @@ const Nav = ({search,setSearch,setShowMenu,profileImg}) => {
     clearSession()
     navigate('/')
   }
+  const cartCount = (() => {
+    try { return (JSON.parse(localStorage.getItem('cart')||'[]')||[]).reduce((s,i)=>s+(i.quantity||0),0) } catch { return 0 }
+  })()
   
   return (
     <nav>
@@ -51,6 +55,10 @@ const Nav = ({search,setSearch,setShowMenu,profileImg}) => {
         <Link to="/notification" id='notifi' style={{marginTop:"8px"}}><IoNotificationsOutline className='nav-icons'/><span>5</span></Link>
            
         <TbMessage className='nav-icons'/>
+        <Link to="/carts" style={{textDecoration:'none', position:'relative'}}>
+          <AiOutlineShoppingCart className='nav-icons' />
+          {cartCount > 0 && (<span style={{ position:'absolute', top:-4, right:-8, background:'#ff4757', color:'#fff', borderRadius:10, padding:'0 6px', fontSize:12 }}>{cartCount}</span>)}
+        </Link>
         <LiaUserFriendsSolid 
         className='nav-icons'
         onClick={()=>setShowMenu(true)}/>
